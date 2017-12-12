@@ -35,6 +35,7 @@ Networks, Inc.
 #include "coappdu.h"
 #include "coapmsg.h"
 #include "temp_sensor.h"
+#include "relay_card.h"
 #include "log.h"
 #include "arduino_time.h"
 
@@ -51,7 +52,7 @@ Networks, Inc.
 /* Avoid using characters such as ,.;:{}-+*&%$#@!?<>|\/[]~`                   */
 /* The string below will be part of the CoAP URI used to access this sensor   */
 /* If the string is "humi", the complete URI will be /sensor/arduino/humi     */
-#define MY_SENSOR             			"a_sensor"
+#define RELAY_CARD             			"relaycard"
 #define MY_SECOND_SENSOR       			"another_sensor"
 
 /******************************************************************************/

@@ -86,16 +86,11 @@ error_t crarduino( struct coap_msg_ctx *req, struct coap_msg_ctx *rsp )
             return crtemperature( req, rsp, it );
         }
 
-        
-        /* Below, replace MY_SENSOR with your own name of your particular sensor  */
-        /* Use the enclosed template (TT_resource.cpp and TT_resource.h) to       */
-        /* implement the crmysensor function and associated methods               */
-        //if (!coap_opt_strcmp( o, MY_SENSOR ))
-        //{
-        //    /* Replace mysensor below with a name for your sensor               */
-        //    /* The function 'crmysensor' is implemented in a new C++ file       */
-        //    return crmysensor( req, rsp, it );
-        //}
+
+        if (!coap_opt_strcmp( o, RELAY_CARD ))
+        {
+            return crrelaycard( req, rsp, it );
+        }
         
         rsp->code = COAP_RSP_404_NOT_FOUND;
     
@@ -123,6 +118,7 @@ void setup()
 
   // Init the temp sensor
   arduino_temp_sensor_init();
+  arduino_relaycard_init();
 
   // Init the CoAP Server
   coap_s_init( UART_PTR, COAP_MSG_MAX_AGE_IN_SECS, UART_TIMEOUT_IN_MS, MAX_HDLC_INFO_LEN, OBS_SENSOR_NAME, OBS_FUNC_PTR );
