@@ -1,16 +1,16 @@
 /*
 
-Copyright (c) Silver Spring Networks, Inc. 
+Copyright (c) Silver Spring Networks, Inc.
 All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the ""Software""), to deal in
 the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of 
-the Software, and to permit persons to whom the Software is furnished to do so, 
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
 subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all 
+The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -20,8 +20,8 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-Except as contained in this notice, the name of Silver Spring Networks, Inc. 
-shall not be used in advertising or otherwise to promote the sale, use or other 
+Except as contained in this notice, the name of Silver Spring Networks, Inc.
+shall not be used in advertising or otherwise to promote the sale, use or other
 dealings in this Software without prior written authorization from Silver Spring
 Networks, Inc.
 
@@ -67,19 +67,19 @@ error_t crtemperature(struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *
     {
         rsp->code = COAP_RSP_404_NOT_FOUND;
         goto err;
-    }            
+    }
 
     /* All methods require a query, so return an error if missing. */
-    if (!(o = copt_get_next_opt_type((const sl_co*)&(req->oh), COAP_OPTION_URI_QUERY, NULL))) 
+    if (!(o = copt_get_next_opt_type((const sl_co*)&(req->oh), COAP_OPTION_URI_QUERY, NULL)))
     {
         rsp->code = COAP_RSP_405_METHOD_NOT_ALLOWED;
         goto err;
     }
-    
+
     /*
      * PUT for writing configuration or enabling sensors
      */
-    if (req->code == COAP_REQUEST_PUT) 
+    if (req->code == COAP_REQUEST_PUT)
     {
         error_t rc = ERR_OK;
 
@@ -87,11 +87,11 @@ error_t crtemperature(struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *
         if (!coap_opt_strcmp(o, "cfg=C"))
         {
 			arduino_put_temp_cfg(CELSIUS_SCALE);
-        } 
+        }
         else if (!coap_opt_strcmp(o, "cfg=F"))
         {
 			arduino_put_temp_cfg(FAHRENHEIT_SCALE);
-			
+
         }
         else
         {
@@ -99,7 +99,7 @@ error_t crtemperature(struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *
             rsp->code = COAP_RSP_501_NOT_IMPLEMENTED;
             goto err;
         }
-        
+
         if (!rc)
         {
             rsp->code = COAP_RSP_204_CHANGED;
@@ -120,7 +120,7 @@ error_t crtemperature(struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *
             goto err;
         }
     } // if PUT
-    
+
     /*
      * GET for reading sensor or config information
      */
@@ -138,7 +138,7 @@ error_t crtemperature(struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *
         /* GET /temp?sens */
         else if (!coap_opt_strcmp(o, "sens"))
         {
-			if ((o = copt_get_next_opt_type((sl_co*)&(req->oh), COAP_OPTION_OBSERVE, NULL))) 
+			if ((o = copt_get_next_opt_type((sl_co*)&(req->oh), COAP_OPTION_OBSERVE, NULL)))
 			{
 				uint32_t obsval = co_uint32_n2h(o);
 				switch(obsval)
@@ -147,11 +147,11 @@ error_t crtemperature(struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *
 						rc = coap_obs_reg();
 						obs = true;
 						break;
-					
+
 					case COAP_OBS_DEREG:
 						rc = coap_obs_dereg();
 						break;
-					
+
 					default:
 						rc = ERR_INVAL;
 
@@ -161,7 +161,7 @@ error_t crtemperature(struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *
 			{
 				/* Get sensor value */
 				rc = arduino_get_temp( rsp->msg, &len );
-				
+
 			} // if-else
         }
         else {
@@ -172,7 +172,7 @@ error_t crtemperature(struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *
         dlog(LOG_DEBUG, "GET (status %d) read %d bytes.", rc, len);
         if (!rc) {
 			if (obs)
-			{                        
+			{
 			/* Good code, but no content. */
 				rsp->code = COAP_RSP_203_VALID;
 				rsp->plen = 0;
@@ -196,16 +196,16 @@ error_t crtemperature(struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *
             goto err;
         }
     } // if GET
-    
+
     /*
      * DELETE for disabling sensors.
      */
     /* DELETE /temp?all */
-    else if (req->code == COAP_REQUEST_DELETE) 
+    else if (req->code == COAP_REQUEST_DELETE)
     {
         if (!coap_opt_strcmp(o, "all"))
         {
-            if (arduino_disab_temp()) 
+            if (arduino_disab_temp())
             {
                 rsp->code = COAP_RSP_500_INTERNAL_ERROR;
                 goto err;
@@ -216,14 +216,14 @@ error_t crtemperature(struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *
         }
         rsp->code = COAP_RSP_202_DELETED;
         rsp->plen = 0;
-    
-    } // if DELETE 
-    else 
+
+    } // if DELETE
+    else
     {
         /* no other operation is supported */
         rsp->code = COAP_RSP_405_METHOD_NOT_ALLOWED;
         goto err;
-        
+
     } // Unknown operation
 
     return ERR_OK;
@@ -232,7 +232,7 @@ err:
     rsp->plen = 0;
 
     return ERR_OK;
-    
+
 } // crtemperature
 
 
@@ -241,7 +241,7 @@ temp_ctx_t temp_ctx;
 
 // See guide for details on sensor wiring and usage:
 //   https://learn.adafruit.com/dht/overview
-#define DHT_TYPE           DHT11     // DHT 11 
+#define DHT_TYPE           DHT11     // DHT 11
 DHT_Unified dht( A4, DHT_TYPE );
 
 
@@ -253,7 +253,7 @@ error_t arduino_temp_sensor_init()
 
 	// Enable temp sensor
 	arduino_enab_temp();
-	
+
 	println("DHTxx Unified Sensor Example");
 
 	// Print temperature sensor details.
@@ -266,10 +266,10 @@ error_t arduino_temp_sensor_init()
 	print  ("Unique ID:    "); printnum(sensor.sensor_id);  println("");
 	print  ("Max Value:    "); printnum(sensor.max_value);  println(UNIT);
 	print  ("Min Value:    "); printnum(sensor.min_value);  println(UNIT);
-	print  ("Resolution:   "); printnum(sensor.resolution); println(UNIT);  
-	println("------------------------------------");  
+	print  ("Resolution:   "); printnum(sensor.resolution); println(UNIT);
+	println("------------------------------------");
 	return ERR_OK;
-	
+
 } // arduino_temp_sensor_init()
 
 
@@ -315,19 +315,19 @@ char arduino_get_temp_scale()
 	{
 		// Celsius
 		return 'C';
-		
+
 	} // if
 
 	// Fahrenheit
 	return 'F';
-	
+
 } // arduino_get_temp_scale
 
 /**
  *
  * @brief Read temperature sensor and return a message and length of message
  *
- * 
+ *
  */
 error_t arduino_get_temp( struct mbuf *m, uint8_t *len )
 {
@@ -340,7 +340,7 @@ error_t arduino_get_temp( struct mbuf *m, uint8_t *len )
 	if ( temp_ctx.state == tsat_disabled )
 	{
 		return ERR_OP_NOT_SUPP;
-		
+
 	} // if
 
 	/* Read temp, already in network order. */
@@ -351,7 +351,7 @@ error_t arduino_get_temp( struct mbuf *m, uint8_t *len )
 	{
 		// Change return unit to Celsius
 		strcpy( unit, "C" );
-		
+
 	} // if
 
 	// Assemble response
@@ -373,17 +373,17 @@ error_t arduino_put_temp_cfg( temp_scale_t scale )
 	{
 	case CELSIUS_SCALE:
 		temp_scale = CELSIUS_SCALE;
-       	println("Celsius scale set!");
+        SerialUSB.println("Celsius scale set!");
 		break;
 
 	case FAHRENHEIT_SCALE:
 		temp_scale = FAHRENHEIT_SCALE;
-       	println("Fahrenheit scale set!");
+        SerialUSB.println("Fahrenheit scale set!");
 		break;
 
 	default:
 		return ERR_INVAL;
-		
+
 	} // switch
 
 	// Enable
@@ -407,7 +407,7 @@ error_t arduino_get_temp_cfg( struct mbuf *m, uint8_t *len )
 	{
 		// Change return unit to Celsius
 		strcpy( unit, "C" );
-		
+
 	} // if
 
 	// Assemble response
@@ -428,21 +428,21 @@ error_t temp_sensor_read(float * p)
 
     if (temp_ctx.state == tsat_disabled)
     {
-		println("Temp sensor disabled!");
+		SerialUSB.println("Temp sensor disabled!");
         return ERR_OP_NOT_SUPP;
     }
 
 	// Get temperature event and print its value.
-	sensors_event_t event;  
+	sensors_event_t event;
 	dht.temperature().getEvent(&event);
 
 	// Check for NaN
-	if (isnan(event.temperature)) 
+	if (isnan(event.temperature))
 	{
-		println("Error reading temperature!");
+		SerialUSB.println("Error reading temperature!");
 		rc = ERR_FAIL;
 	}
-	else 
+	else
 	{
 		re = event.temperature;
 		if ( FAHRENHEIT_SCALE == temp_scale )
@@ -451,10 +451,10 @@ error_t temp_sensor_read(float * p)
 			re *= 1.8;
 			re += 32;
 		}
-		
+
 		rc = ERR_OK;
 	}
-	
+
 	// Assign output
 	*p = re;
     return rc;

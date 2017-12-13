@@ -30,6 +30,21 @@ The circuit configuration - Relaycard Keyes_SR1y
   - minus pin: ground (Milli5 Arduino Shiled board - J15 pin6 )
   - plus pin: 5V (Milli5 Arduino Shiled board - J15 pin5 )
   - S pin: 10 (Milli5 Arduino Shiled board - J6 pin3 )
+
+
+
+To set the relaycard state:
+
+PUT /sensor/arduino/relaycard?state=open
+PUT /sensor/arduino/relaycard?state=close
+
+
+To get the relaycard state:
+GET /sensor/arduino/relaycard?state
+
+DELETE for disabling relaycard
+DELETE /sensor/arduino/relaycard?all
+
 */
 
 
@@ -47,12 +62,16 @@ The circuit configuration - Relaycard Keyes_SR1y
 /* PIN DECLARATION */
 const int relaycard_pin = 10;
 
+// Set of relaycard State as OPEN
+static relaycard_state_t relaycard_state = RELAYCARD_OPEN;
+
+// Relaycard Config
+relaycard_cfg_t relaycard_cfg;
+
 /******************************************************************************/
 /*                      Public Methods                                        */
 /******************************************************************************/
 
-// Relaycard Config
-relaycard_cfg_t relaycard_cfg;
 
 /**
  * crrelaycard
@@ -201,7 +220,6 @@ err:
  * @brief
  *
  */
-#define UNIT " *C"
 error_t arduino_relaycard_init()
 {
     // Initialize relaycard pin - OPEN state by Default
@@ -210,10 +228,10 @@ error_t arduino_relaycard_init()
 
     // Enable relaycard
     arduino_enab_relaycard();
-    println("");
-    println("------------------------------------------");
-    println("Relaycard Example - By Default Open State");
-    println("-----------------------------------------");
+    SerialUSB.println("");
+    SerialUSB.println("------------------------------------------");
+    SerialUSB.println("Relaycard Example - By Default Open State");
+    SerialUSB.println("-----------------------------------------");
     return ERR_OK;
 
 } // arduino_init_relaycard
@@ -246,8 +264,7 @@ error_t arduino_disab_relaycard()
     return rc;
 }
 
-// Set of relaycard State as OPEN
-static relaycard_state_t relaycard_state = RELAYCARD_OPEN;
+
 
 /**
  * @brief Get relaycard state
@@ -292,14 +309,14 @@ error_t arduino_put_relaycard_state( relaycard_state_t state )
     case RELAYCARD_OPEN:
         relaycard_state = RELAYCARD_OPEN;
         digitalWrite(relaycard_pin, LOW);
-        println("Relaycard Open State Set!");
+        SerialUSB.println("Relaycard Open State Set!");
 
         break;
 
     case RELAYCARD_CLOSE:
         relaycard_state = RELAYCARD_CLOSE;
         digitalWrite(relaycard_pin, HIGH);
-        println("Relaycard Close State Set!");
+        SerialUSB.println("Relaycard Close State Set!");
         break;
 
     default:
@@ -317,7 +334,10 @@ error_t arduino_put_relaycard_state( relaycard_state_t state )
 /******************************************************************************/
 /*                     Private Methods                                        */
 /******************************************************************************/
-
+/*
+ * @brief Enable sensor
+ * @return error_t
+ */
 error_t relaycard_enable(void)
 {
     relaycard_cfg.enable = 1;
