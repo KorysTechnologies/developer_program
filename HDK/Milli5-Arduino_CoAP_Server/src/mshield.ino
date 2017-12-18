@@ -92,11 +92,16 @@ error_t crarduino( struct coap_msg_ctx *req, struct coap_msg_ctx *rsp )
             return crrelaycard( req, rsp, it );
         }
 
-        if (!coap_opt_strcmp( o, ALS_SENSOR ))
+        /*if (!coap_opt_strcmp( o, ALS_SENSOR ))
         {
             return crals( req, rsp, it );
-        }
-        
+        }*/
+
+        if (!coap_opt_strcmp( o, BME280_SENSOR ))
+        {
+            return crbme280( req, rsp, it );
+        }        
+
         rsp->code = COAP_RSP_404_NOT_FOUND;
     
     } // if            
@@ -124,7 +129,8 @@ void setup()
   // Init the temp sensor
   arduino_temp_sensor_init();
   arduino_relaycard_init();
-  arduino_als_sensor_init();
+  //arduino_als_sensor_init();
+  arduino_bme280_sensor_init();
 
   // Init the CoAP Server
   coap_s_init( UART_PTR, COAP_MSG_MAX_AGE_IN_SECS, UART_TIMEOUT_IN_MS, MAX_HDLC_INFO_LEN, OBS_SENSOR_NAME, OBS_FUNC_PTR );

@@ -37,6 +37,7 @@ Networks, Inc.
 #include "temp_sensor.h"
 #include "relay_card.h"
 #include "alsopt3001_sensor.h"
+#include "bme280_sensor.h"
 #include "log.h"
 #include "arduino_time.h"
 
@@ -55,6 +56,7 @@ Networks, Inc.
 /* If the string is "humi", the complete URI will be /sensor/arduino/humi     */
 #define RELAY_CARD             			"relaycard"
 #define ALS_SENSOR						"als"
+#define BME280_SENSOR					"bme280"
 #define MY_SECOND_SENSOR       			"another_sensor"
 
 /******************************************************************************/
@@ -67,11 +69,13 @@ Networks, Inc.
 // Pick one sensor from the sensors above to make it an "observable" sensor:
 #define OBS_SENSOR_NAME     			TEMP_SENSOR
 //#define OBS_SENSOR_NAME     			ALS_SENSOR
+//#define OBS_SENSOR_NAME     			BME280_SENSOR
 
 // Specify the function that reads the sensor and assembles the 
 // CoAP Observe response message:
 #define OBS_FUNC_PTR        			&arduino_get_temp
 //#define OBS_FUNC_PTR        			&arduino_get_als
+//#define OBS_FUNC_PTR        			&arduino_get_bme280
 
 /******************************************************************************/
 //
