@@ -56,10 +56,9 @@ typedef enum
 
 typedef struct bme280_ctx 
 {
-  //  temp_sensor_cfg_t	cfg;
-  //  temp_sensor_alert_t state;
+	bme280_temp_scale_t bme280_temp_scale;
+	bme280_altitude_scale_t bme280_altitude_scale;
     uint8_t enable;
-    
 } bme280_ctx_t;
 
 /******************************************************************************/
@@ -225,13 +224,13 @@ error_t bme280_sensor_read_altitude(float * p);
 error_t bme280_sensor_read_sealevelforaltitude(float * p);
 
 /*
- * @brief  Enable temp alert XXX must be called in app task!
+ * @brief  Enable sensor
  * @return error_t
  */
 error_t bme280_sensor_enable(void);
 
 /*
- * @brief  Disable temp alert XXX must be called in app task!
+ * @brief  Disable sensor
  * @return error_t
  */
 error_t bme280_sensor_disable(void);

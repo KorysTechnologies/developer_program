@@ -62,9 +62,6 @@ DELETE /sensor/arduino/relaycard?all
 /* PIN DECLARATION */
 const int relaycard_pin = 10;
 
-// Set of relaycard State as OPEN
-static relaycard_state_t relaycard_state = RELAYCARD_OPEN;
-
 // Relaycard Config
 relaycard_cfg_t relaycard_cfg;
 
@@ -105,12 +102,12 @@ error_t crrelaycard(struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *it
     {
         error_t rc = ERR_OK;
 
-        /* PUT /uri?state=<open|close> */
+        /* PUT /relaycard?state=<open|close> */
         if (!coap_opt_strcmp(o, "state=open"))
         {
 			arduino_put_relaycard_state(RELAYCARD_OPEN);
         }
-        else if (!coap_opt_strcmp(o, "cfg=close"))
+        else if (!coap_opt_strcmp(o, "state=close"))
         {
 			arduino_put_relaycard_state(RELAYCARD_CLOSE);
         }
@@ -228,6 +225,10 @@ error_t arduino_relaycard_init()
 
     // Enable relaycard
     arduino_enab_relaycard();
+
+    // Set of relaycard State as OPEN
+    relaycard_cfg.state = RELAYCARD_OPEN;
+
     SerialUSB.println("");
     SerialUSB.println("------------------------------------------");
     SerialUSB.println("Relaycard Example - By Default Open State");
@@ -307,14 +308,14 @@ error_t arduino_put_relaycard_state( relaycard_state_t state )
     switch(state)
     {
     case RELAYCARD_OPEN:
-        relaycard_state = RELAYCARD_OPEN;
+        relaycard_cfg.state = RELAYCARD_OPEN;
         digitalWrite(relaycard_pin, LOW);
         SerialUSB.println("Relaycard Open State Set!");
 
         break;
 
     case RELAYCARD_CLOSE:
-        relaycard_state = RELAYCARD_CLOSE;
+        relaycard_cfg.state = RELAYCARD_CLOSE;
         digitalWrite(relaycard_pin, HIGH);
         SerialUSB.println("Relaycard Close State Set!");
         break;
@@ -324,8 +325,6 @@ error_t arduino_put_relaycard_state( relaycard_state_t state )
 
     } // switch
 
-    // Enable relaycard
-    arduino_enab_relaycard();
     return ERR_OK;
 
 }

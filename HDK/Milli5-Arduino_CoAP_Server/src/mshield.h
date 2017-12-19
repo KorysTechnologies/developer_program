@@ -38,6 +38,7 @@ Networks, Inc.
 #include "relay_card.h"
 #include "alsopt3001_sensor.h"
 #include "bme280_sensor.h"
+#include "adxl335_sensor.h"
 #include "log.h"
 #include "arduino_time.h"
 
@@ -57,6 +58,7 @@ Networks, Inc.
 #define RELAY_CARD             			"relaycard"
 #define ALS_SENSOR						"als"
 #define BME280_SENSOR					"bme280"
+#define ADXL335_SENSOR					"adxl335"
 #define MY_SECOND_SENSOR       			"another_sensor"
 
 /******************************************************************************/
@@ -70,12 +72,19 @@ Networks, Inc.
 #define OBS_SENSOR_NAME     			TEMP_SENSOR
 //#define OBS_SENSOR_NAME     			ALS_SENSOR
 //#define OBS_SENSOR_NAME     			BME280_SENSOR
+//#define OBS_SENSOR_NAME     			ADXL335_SENSOR
 
 // Specify the function that reads the sensor and assembles the 
 // CoAP Observe response message:
 #define OBS_FUNC_PTR        			&arduino_get_temp
 //#define OBS_FUNC_PTR        			&arduino_get_als
-//#define OBS_FUNC_PTR        			&arduino_get_bme280
+//#define OBS_FUNC_PTR        			&arduino_get_bme280_temp
+//#define OBS_FUNC_PTR        			&arduino_get_bme280_pressure
+//#define OBS_FUNC_PTR        			&arduino_get_bme280_altitude
+//#define OBS_FUNC_PTR        			&arduino_get_bme280_humidity
+//#define OBS_FUNC_PTR        			&arduino_get_adxl335_xaxis
+//#define OBS_FUNC_PTR        			&arduino_get_adxl335_yaxis
+//#define OBS_FUNC_PTR        			&arduino_get_adxl335_zaxis
 
 /******************************************************************************/
 //

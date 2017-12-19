@@ -27,42 +27,26 @@ Networks, Inc.
 
 */
 
-#ifndef ALSOPT3001_SENSOR_H_
-#define ALSOPT3001_SENSOR_H_
+#ifndef ADXL335_SENSOR_H_
+#define ADXL335_SENSOR_H_
 
 #include <Arduino.h>
 #include "errors.h"
-#include <ClosedCube_OPT3001.h>
 
-
-typedef enum {
-    ALS_SHUTDOWN = 0x0,
-    ALS_SINGLESHOT = 0x1,
-    ALS_CONTINUOUS1 = 0x2,
-    ALS_CONTINUOUS2 = 0x3
-} als_sensor_conversionmode_t;
-
-typedef enum {
-    ALS_CONVTIME_100MS = 0x0,
-    ALS_CONVTIME_800MS = 0x1
-} als_sensor_conversiontime_t;
-
-typedef struct als_sensor_cfg
+typedef enum
 {
-    int8_t  als_range_number;
-    als_sensor_conversiontime_t  als_conversion_time;
-    uint8_t  als_latch;
-    als_sensor_conversionmode_t  als_conversion_mode;
+	ADXL335_INVALID_MEAS = -100,
+	ADXL335_MEAS_G = 0x47,
+	ADXL335_MEAS_ROTATION = 0x52,
+	ADXL335_MEAS_RAWDATA = 0x4F
+} adxl335_measurement_type_t;
 
-} als_sensor_cfg_t;
 
-
-typedef struct als_ctx
+typedef struct adxl335_ctx
 {
-    als_sensor_cfg_t   cfg;
-    uint8_t  enable;
-} als_ctx_t;
-
+	adxl335_measurement_type_t meas_type;
+    uint8_t enable;
+} adxl335_ctx_t;
 
 /******************************************************************************/
 /*                      Public Methods                                        */
@@ -70,124 +54,116 @@ typedef struct als_ctx
 
 
 /*
- * crals
+ * cradxl335
  *
- * @brief CoAP Resource als sensor
+ * @brief CoAP Resource adxl335 sensor
  *
  */
-error_t crals( struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *it );
+error_t cradxl335( struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *it );
 
 /*
- * arduino_disab_als
+ * disab_adxl335
  *
  * @brief
  *
  */
-error_t arduino_disab_als();
+error_t arduino_disab_adxl335();
 
 /*
- * arduino_enab_zld
+ * enab_adxl335
  *
  * @brief
  *
  */
-error_t arduino_enab_als();
+error_t arduino_enab_adxl335();
 
 /*
- * arduino_als_sensor_init
+ * adxl335_sensor_init
  *
-* @brief
  *
  */
-error_t arduino_als_sensor_init();
+error_t arduino_adxl335_sensor_init();
 
 /**
- * @brief Get sensor als
+ * @brief CoAP put adxl335 measurement configuration
+ *
+ * @param[in] measurement type G, Rotation or RawData
+ * @return error_t
+ */
+error_t arduino_put_adxl335_meas_cfg( adxl335_measurement_type_t meas_type );
 
+/**
+ * @brief CoAP Server get adxl335 measurement configuration
+ *
  * @param[in] m Pointer to input mbuf
  * @param[in] len Length of input
  * @return error_t
  */
-error_t arduino_get_als(struct mbuf *m, uint8_t *len);
+error_t arduino_get_adxl335_meas_cfg(struct mbuf *m, uint8_t *len);
+
 
 /**
- * @brief CoAP PUT als config conversion time
+ * @brief Read adxl335 x axis value
  *
- * @param[in] conversion time
- * @return error_t
- */
-error_t arduino_put_als_cfg_conversiontime( als_sensor_conversiontime_t convtime ); //radu
-
-
-/**
- * @brief CoAP GET als conversion time
-
  * @param[in] m Pointer to input mbuf
  * @param[in] len Length of input
  * @return error_t
  */
-error_t arduino_get_als_cfg_conversiontime(struct mbuf *m, uint8_t *len); //radu
+error_t arduino_get_adxl335_xaxis( struct mbuf *m, uint8_t *len );
 
 
 /**
- * @brief CoAP PUT als config conversion time
+ * @brief Read adxl335 y axis value
  *
- * @param[in] conversion time
- * @return error_t
- */
-error_t arduino_put_als_cfg_conversionmode( als_sensor_conversionmode_t convmode ); //radu
-
-
-/**
- * @brief CoAP GET als conversion time
-
  * @param[in] m Pointer to input mbuf
  * @param[in] len Length of input
  * @return error_t
  */
-error_t arduino_get_als_cfg_conversionmode(struct mbuf *m, uint8_t *len); //radu
+error_t arduino_get_adxl335_yaxis( struct mbuf *m, uint8_t *len );
 
+/**
+ * @brief Read adxl335 z axis value
+ *
+ * @param[in] m Pointer to input mbuf
+ * @param[in] len Length of input
+ * @return error_t
+ */
+error_t arduino_get_adxl335_zaxis( struct mbuf *m, uint8_t *len );
 
 
 /******************************************************************************/
 /*                     Private Methods                                        */
 /******************************************************************************/
 
-void configureSensor();
-
-void newconfigureSensor() ;
-
-void printResult(String text, OPT3001 result);
-
-void printError(String text, OPT3001_ErrorCode error);
-
 /*
- * als_sensor_read
+ * adxl335_sensor_read_gforce
  *
- * @param p: if error_t is ERR_OK, als reading will be returned.
+ * @param p: if error_t is ERR_OK, temperature reading will be returned.
  *
  */
-error_t als_sensor_read(float * p);
+error_t adxl335_sensor_convert_gforce( float Value_raw, float * result );
 
 
 /*
- * @brief  Get thresholds for als sensor alerts
- * @return error_t
+ * adxl335_sensor_read_rotation
+ *
+ * @param p: if error_t is ERR_OK, pressure reading will be returned.
+ *
  */
-error_t als_sensor_cfg_set(const struct als_sensor_cfg *cfg);
+error_t adxl335_sensor_convert_rotation(double param1, double param2, float * result );
 
 /*
  * @brief  Enable sensor
  * @return error_t
  */
-error_t als_sensor_enable(void);
+error_t adxl335_sensor_enable(void);
 
 /*
  * @brief  Disable sensor
  * @return error_t
  */
-error_t als_sensor_disable(void);
+error_t adxl335_sensor_disable(void);
 
 
 
-#endif /* ALSOPT3001_SENSOR_H_ */
+#endif /* ADXL335_SENSOR_H_ */

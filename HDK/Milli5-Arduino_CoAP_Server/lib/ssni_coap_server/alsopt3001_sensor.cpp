@@ -38,13 +38,13 @@ The circuit configuration - ClosedCube OPT3001-PRO
 To set the als sensor configuration:
 
 Set ALS Conversion time
-PUT /sensor/arduino/als?cfg_conversiontime=0    100ms
-PUT /sensor/arduino/als?cfg_conversiontime=1    800ms
+PUT /sensor/arduino/als?cfg_conversiontime=100ms
+PUT /sensor/arduino/als?cfg_conversiontime=800ms
 
 Set ALS Conversion mode
-PUT /sensor/arduino/als?cfg_conversionmode=0    Shutdown
-PUT /sensor/arduino/als?cfg_conversionmode=1    Singleshot
-PUT /sensor/arduino/als?cfg_conversionmode=3    Continuous
+PUT /sensor/arduino/als?cfg_conversionmode=Shutdown
+PUT /sensor/arduino/als?cfg_conversionmode=Singleshot
+PUT /sensor/arduino/als?cfg_conversionmode=Continuous
 
 
 To get the  als sensor configuration:

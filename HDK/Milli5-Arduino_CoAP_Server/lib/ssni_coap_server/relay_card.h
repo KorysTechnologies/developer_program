@@ -36,14 +36,14 @@ Networks, Inc.
 typedef enum
 {
 	RELAYCARD_OPEN = 0x0,
-	RELAYCARD_CLOSE = 0x1,
+	RELAYCARD_CLOSE = 0x1
 
 } relaycard_state_t;
 
 
 typedef struct relaycard_cfg
 {
-	uint8_t state;
+	relaycard_state_t state;
 	uint8_t enable;
 
 } relaycard_cfg_t;
@@ -54,7 +54,7 @@ typedef struct relaycard_cfg
 
 /**
  *
- * @brief CoAP Resource "put description here"
+ * @brief CoAP Resource relaycard sensor
  *
  */
 error_t crrelaycard(struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *it);

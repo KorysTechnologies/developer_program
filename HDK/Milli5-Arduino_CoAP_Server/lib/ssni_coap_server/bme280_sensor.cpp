@@ -38,9 +38,11 @@ Set bme280 temperature
 PUT /sensor/arduino/bme280?cfg_temp=C
 PUT /sensor/arduino/bme280?cfg_temp=F
 
-Set bme280 altitude
-PUT /sensor/arduino/bme280?cfg_altitude=M    Meter
-PUT /sensor/arduino/bme280?cfg_altitude=F    Feet
+Set bme280 altitude Meter
+PUT /sensor/arduino/bme280?cfg_altitude=M
+
+Set bme280 altitude Feet
+PUT /sensor/arduino/bme280?cfg_altitude=F
 
 To get the bme280 sensor configuration:
 
@@ -57,7 +59,10 @@ GET /sensor/arduino/bme280?sens_altitude
 GET /sensor/arduino/bme280?sens_humidity
 
 To request an observe on the bme280 sensor value:
-GET /sensor/arduino/bme280?sens with the CoAP observe header set
+GET /sensor/arduino/bme280?sens_temp with the CoAP observe header set
+GET /sensor/arduino/bme280?sens_pressure with the CoAP observe header set
+GET /sensor/arduino/bme280?sens_altitude with the CoAP observe header set
+GET /sensor/arduino/bme280?sens_humidity with the CoAP observe header set
 
 DELETE for disabling bme280 sensor
 DELETE /sensor/arduino/bme280?all
@@ -81,14 +86,7 @@ DELETE /sensor/arduino/bme280?all
 
 Adafruit_BME280 bme;
 
-// Scale of temperature measurement
-static bme280_temp_scale_t bme280_temp_scale = BME280_CELSIUS_SCALE;
-static bme280_altitude_scale_t bme280_altitude_scale = BME280_METER_SCALE;
-
-// TODO: What is this used for
 bme280_ctx_t bme280_ctx;
-
-#define UNIT " *C"
 
 /******************************************************************************/
 /*                      Public Methods                                        */
@@ -97,7 +95,7 @@ bme280_ctx_t bme280_ctx;
 /*
  * crtemperature
  *
- * @brief CoAP Resource temperature sensor
+ * @brief CoAP Resource Bosch bme280 sensor
  *
  */
 error_t crbme280(struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *it)
@@ -137,6 +135,7 @@ error_t crbme280(struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *it)
         {
 			arduino_put_bme280_temp_cfg(BME280_FAHRENHEIT_SCALE);
         }
+        /* PUT /bme280?cfg_altitude=<M|F> */
         else if (!coap_opt_strcmp(o, "cfg_altitude=M"))
         {
             arduino_put_bme280_altitude_cfg(BME280_METER_SCALE);
@@ -182,13 +181,13 @@ error_t crbme280(struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *it)
 
         /* Config or sensor values. */
         /* GET /bme280?cfg_temp */
-        if (!coap_opt_strcmp(o, "bme280?cfg_temp"))
+        if (!coap_opt_strcmp(o, "cfg_temp"))
         {
             /* get temperature config */
             rc = arduino_get_bme280_temp_cfg( rsp->msg, &len );
         }
          /* GET bme280?cfg_altitude */
-        else if (!coap_opt_strcmp(o, "bme280?cfg_altitude"))
+        else if (!coap_opt_strcmp(o, "cfg_altitude"))
         {
             /* get temperature config */
             rc = arduino_get_bme280_altitude_cfg( rsp->msg, &len );
@@ -399,6 +398,10 @@ error_t arduino_bme280_sensor_init()
     // Only needed in forced mode! In normal mode, you can remove the next line.
     bme.takeForcedMeasurement(); // has no effect in normal mode
 
+    // Scale of temperature measurement
+    bme280_ctx.bme280_temp_scale = BME280_CELSIUS_SCALE;
+    bme280_ctx.bme280_altitude_scale = BME280_METER_SCALE;
+
 	// Enable bme280 sensor
 	arduino_enab_bme280();
 
@@ -445,12 +448,12 @@ error_t arduino_put_bme280_temp_cfg( bme280_temp_scale_t scale )
 	switch(scale)
 	{
 	case BME280_CELSIUS_SCALE:
-		bme280_temp_scale = BME280_CELSIUS_SCALE;
+		bme280_ctx.bme280_temp_scale = BME280_CELSIUS_SCALE;
         SerialUSB.println("Celsius scale set!");
 		break;
 
 	case BME280_FAHRENHEIT_SCALE:
-		bme280_temp_scale = BME280_FAHRENHEIT_SCALE;
+		bme280_ctx.bme280_temp_scale = BME280_FAHRENHEIT_SCALE;
         SerialUSB.println("Fahrenheit scale set!");
 		break;
 
@@ -474,7 +477,7 @@ error_t arduino_get_bme280_temp_cfg( struct mbuf *m, uint8_t *len )
 	char unit[2] = "F"; // Default scale Fahrenheit, NULL terminated string
 
 	// Check scale
-	if ( bme280_temp_scale == BME280_CELSIUS_SCALE )
+	if ( bme280_ctx.bme280_temp_scale == BME280_CELSIUS_SCALE )
 	{
 		// Change return unit to Celsius
 		strcpy( unit, "C" );
@@ -498,12 +501,12 @@ error_t arduino_put_bme280_altitude_cfg( bme280_altitude_scale_t scale )
     switch(scale)
     {
     case BME280_METER_SCALE:
-        bme280_altitude_scale = BME280_METER_SCALE;
+        bme280_ctx.bme280_altitude_scale = BME280_METER_SCALE;
         SerialUSB.println("Altitude Meter Scale Set!");
         break;
 
     case BME280_FAHRENHEIT_SCALE:
-        bme280_altitude_scale = BME280_FEET_SCALE;
+        bme280_ctx.bme280_altitude_scale = BME280_FEET_SCALE;
         SerialUSB.println("Altitude Feet Scale Set!");
         break;
 
@@ -527,7 +530,7 @@ error_t arduino_get_bme280_altitude_cfg( struct mbuf *m, uint8_t *len )
     char unit[6] = " Feet"; // Default scale Feet, NULL terminated string
 
     // Check scale
-    if ( bme280_altitude_scale == BME280_METER_SCALE )
+    if ( bme280_ctx.bme280_altitude_scale == BME280_METER_SCALE )
     {
         // Change return unit to Meter
         strcpy( unit, " Meter" );
@@ -563,7 +566,7 @@ error_t arduino_get_bme280_temp( struct mbuf *m, uint8_t *len )
     rc = bme280_sensor_read_temp(&reading);
 
     // Check scale
-    if ( bme280_temp_scale == BME280_CELSIUS_SCALE )
+    if ( bme280_ctx.bme280_temp_scale == BME280_CELSIUS_SCALE )
     {
         // Change return unit to Celsius
         strcpy( unit, " C" );
@@ -630,7 +633,7 @@ error_t arduino_get_bme280_altitude( struct mbuf *m, uint8_t *len )
     rc = bme280_sensor_read_altitude(&reading);
 
     // Check scale
-    if ( bme280_altitude_scale == BME280_FEET_SCALE )
+    if ( bme280_ctx.bme280_altitude_scale == BME280_FEET_SCALE )
     {
         // Change return unit to Feet
         strcpy( unit, " Feet" );
@@ -692,7 +695,7 @@ error_t bme280_sensor_read_temp(float * p)
 
 	// Get bme280 temperature value and print its value.
 	re = bme.readTemperature();
-	if ( BME280_FAHRENHEIT_SCALE == bme280_temp_scale )
+	if (bme280_ctx.bme280_temp_scale == BME280_FAHRENHEIT_SCALE )
 	{
 		// Convert from Celsius to Fahrenheit
 		re *= 1.8;
@@ -740,7 +743,7 @@ error_t bme280_sensor_read_altitude(float * p)
 
     // Get bme280 altitude value and print its value.
     re = bme.readAltitude(SEALEVELPRESSURE_HPA);
-    if ( BME280_FEET_SCALE == bme280_altitude_scale )
+    if ( bme280_ctx.bme280_altitude_scale == BME280_FEET_SCALE )
     {
         // Convert from Meters to Feet
         re *= 3.28084;
@@ -780,13 +783,11 @@ error_t bme280_sensor_read_humidity(float * p)
 error_t bme280_sensor_enable(void)
 {
     bme280_ctx.enable = 1;
-    //temp_ctx.state = tsat_cleared;
     return ERR_OK;
 }
 
 error_t bme280_sensor_disable(void)
 {
     bme280_ctx.enable = 0;
-    //temp_ctx.state = tsat_disabled;
     return ERR_OK;
 }
