@@ -104,6 +104,16 @@ error_t crarduino( struct coap_msg_ctx *req, struct coap_msg_ctx *rsp )
         {
             return cradxl335( req, rsp, it );
         }
+
+        if (!coap_opt_strcmp( o, MQ6_SENSOR ))
+        {
+            return crmq6( req, rsp, it );
+        }
+
+        if (!coap_opt_strcmp( o, WEIGHT_SENSOR ))
+        {
+            return crweight( req, rsp, it );
+        }
         rsp->code = COAP_RSP_404_NOT_FOUND;
     
     } // if            
@@ -135,6 +145,8 @@ void setup()
   //arduino_als_sensor_init();
   //arduino_bme280_sensor_init();
   //arduino_adxl335_sensor_init();
+  //arduino_mq6_sensor_init();
+  //arduino_weight_sensor_init();
 
   // Init the CoAP Server
   coap_s_init( UART_PTR, COAP_MSG_MAX_AGE_IN_SECS, UART_TIMEOUT_IN_MS, MAX_HDLC_INFO_LEN, OBS_SENSOR_NAME, OBS_FUNC_PTR );

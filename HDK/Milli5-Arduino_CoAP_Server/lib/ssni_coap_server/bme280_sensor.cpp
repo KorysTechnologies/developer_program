@@ -27,10 +27,10 @@ Networks, Inc.
 
 
 The circuit configuration - Adafruit BME280
-  - GND pin: ground (Milli5 Arduino Shiled board - J15 pin6 )
-  - VDD pin: 5V (Milli5 Arduino Shiled board - J15 pin5 )
-  - SDA pin: 9 (Milli5 Arduino Shiled board - J6 pin9 - I2C_SDA M0 Pro)
-  - SCL pin: 10 (Milli5 Arduino Shiled board - J6 pin10 - I2C_SCL M0 Pro )
+  - GND pin: ground (Milli5 Arduino Shield board - J15 pin6 )
+  - VDD pin: 5V (Milli5 Arduino Shield board - J15 pin5 )
+  - SDA pin: 9 (Milli5 Arduino Shield board - J6 pin9 - I2C_SDA M0 Pro)
+  - SCL pin: 10 (Milli5 Arduino Shield board - J6 pin10 - I2C_SCL M0 Pro )
   
 To set the bme280 sensor configuration:
 
@@ -104,7 +104,7 @@ error_t crbme280(struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *it)
 	uint8_t obs = false;
 
 
-    /* No URI path beyond /temp is supported, so reject if present. */
+    /* No URI path beyond /bme280 is supported, so reject if present. */
     o = copt_get_next_opt_type((const sl_co*)&(req->oh), COAP_OPTION_URI_PATH, &it);
     if (o)
     {

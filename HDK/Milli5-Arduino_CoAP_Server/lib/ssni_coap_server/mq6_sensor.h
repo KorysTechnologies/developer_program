@@ -27,42 +27,28 @@ Networks, Inc.
 
 */
 
-#ifndef ALSOPT3001_SENSOR_H_
-#define ALSOPT3001_SENSOR_H_
+#ifndef MQ6_SENSOR_H_
+#define MQ6_SENSOR_H_
 
 #include <Arduino.h>
 #include "errors.h"
-#include <ClosedCube_OPT3001.h>
-
 
 typedef enum {
-    ALS_SHUTDOWN = 0x0,
-    ALS_SINGLESHOT = 0x1,
-    ALS_CONTINUOUS1 = 0x2,
-    ALS_CONTINUOUS2 = 0x3
-} als_sensor_conversionmode_t;
+    MQ6_LPG = 0x0,
+    MQ6_CH4 = 0x1
 
-typedef enum {
-    ALS_CONVTIME_100MS = 0x0,
-    ALS_CONVTIME_800MS = 0x1
-} als_sensor_conversiontime_t;
+} mq6_gas_meas_t;
 
-typedef struct als_sensor_cfg
+/* MQ6 RL and RO Values */
+#define MQ6_RLVALUE 20 //define MQ6 board load resistance value in kOhms
+#define MQ6_ROFACTOR 9.83 //define MQ6 sensor resistance in clean air factor
+
+typedef struct mq6_ctx
 {
-    int8_t  als_range_number;
-    als_sensor_conversiontime_t  als_conversion_time;
-    uint8_t  als_latch;
-    als_sensor_conversionmode_t  als_conversion_mode;
-
-} als_sensor_cfg_t;
-
-
-typedef struct als_ctx
-{
-    als_sensor_cfg_t   cfg;
+	mq6_gas_meas_t mq6_gas_meas; //type of mq6 gas measurement
+    float mq6_Rovalue;	//value of sensor resistor in clean air after calibration
     uint8_t  enable;
-} als_ctx_t;
-
+} mq6_ctx_t;
 
 /******************************************************************************/
 /*                      Public Methods                                        */
@@ -70,82 +56,61 @@ typedef struct als_ctx
 
 
 /*
- * crals
+ * crmq6
  *
- * @brief CoAP Resource als sensor
+ * @brief CoAP Resource MQ6 sensor
  *
  */
-error_t crals( struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *it );
+error_t crmq6( struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *it );
 
 /*
- * arduino_disab_als
+ * arduino_disab_mq6
  *
  * @brief
  *
  */
-error_t arduino_disab_als();
+error_t arduino_disab_mq6();
 
 /*
- * arduino_enab_zld
+ * arduino_enab_mq6
  *
  * @brief
  *
  */
-error_t arduino_enab_als();
+error_t arduino_enab_mq6();
 
 /*
- * arduino_als_sensor_init
+ * arduino_mq6_sensor_init
  *
-* @brief
+ * @brief Initialize and calibrates MQ6 sensor. It lust be done in an clean air environment
  *
  */
-error_t arduino_als_sensor_init();
+error_t arduino_mq6_sensor_init();
 
 /**
- * @brief Get sensor als
+ * @brief Get sensor MQ6 measurement result
 
  * @param[in] m Pointer to input mbuf
  * @param[in] len Length of input
  * @return error_t
  */
-error_t arduino_get_als(struct mbuf *m, uint8_t *len);
+error_t arduino_get_mq6(struct mbuf *m, uint8_t *len);
 
-/**
- * @brief CoAP PUT als config conversion time
+/* @brief
+ * arduino_put_mq6_cfg
  *
- * @param[in] conversion time
- * @return error_t
+ * Set MQ6 Measurement Type
  */
-error_t arduino_put_als_cfg_conversiontime( als_sensor_conversiontime_t convtime );
-
+error_t arduino_put_mq6_cfg( mq6_gas_meas_t cfg );
 
 /**
- * @brief CoAP GET als conversion time
+ * @brief CoAP GET MQ6 conversion time
 
  * @param[in] m Pointer to input mbuf
  * @param[in] len Length of input
  * @return error_t
  */
-error_t arduino_get_als_cfg_conversiontime(struct mbuf *m, uint8_t *len);
-
-
-/**
- * @brief CoAP PUT als config conversion time
- *
- * @param[in] conversion time
- * @return error_t
- */
-error_t arduino_put_als_cfg_conversionmode( als_sensor_conversionmode_t convmode );
-
-
-/**
- * @brief CoAP GET als conversion time
-
- * @param[in] m Pointer to input mbuf
- * @param[in] len Length of input
- * @return error_t
- */
-error_t arduino_get_als_cfg_conversionmode(struct mbuf *m, uint8_t *len);
+error_t arduino_get_mq6_cfg(struct mbuf *m, uint8_t *len);
 
 
 
@@ -153,41 +118,52 @@ error_t arduino_get_als_cfg_conversionmode(struct mbuf *m, uint8_t *len);
 /*                     Private Methods                                        */
 /******************************************************************************/
 
-void configureSensor();
-
-void newconfigureSensor() ;
-
-void printResult(String text, OPT3001 result);
-
-void printError(String text, OPT3001_ErrorCode error);
+/*
+ * mq6_sensor_calibration
+ *
+ * @param[in] rl - MQ6 board load resistance value
+ * @return sensor resistor in clean air after calibration
+ */
+float mq6_sensor_calibration(float mq6_rlvalue);
 
 /*
- * als_sensor_read
+ * mq6_sensor_read
  *
- * @param p: if error_t is ERR_OK, als reading will be returned.
+ * @param p: if error_t is ERR_OK, MQ6 reading will be returned.
  *
  */
-error_t als_sensor_read(float * p);
-
+float mq6_sensor_read(float p);
 
 /*
- * @brief  Get thresholds for als sensor alerts
- * @return error_t
+ * mq6_sensor_get_gasppm
+ *
+ * @param[in] rs_ro_ratio
+ * @param[in] gas_type
+ * @return ppm (parts per million) value based on gas type
  */
-error_t als_sensor_cfg_set(const struct als_sensor_cfg *cfg);
+int mq6_sensor_get_gasppm(float rs_ro_ration, int gas_type);
+
+
+ /* mq6_sensor_find_interval
+ *
+ * @param[in] array - LPG or CH4 arrays
+ * @param[in] array size
+ * @return index of Rs/Ro interval based on the datasheet curve
+ */
+int mq6_sensor_find_interval(float* array, int array_length, float search_value);
 
 /*
  * @brief  Enable sensor
  * @return error_t
  */
-error_t als_sensor_enable(void);
+error_t mq6_sensor_enable(void);
 
 /*
  * @brief  Disable sensor
  * @return error_t
  */
-error_t als_sensor_disable(void);
+error_t mq6_sensor_disable(void);
 
 
 
-#endif /* ALSOPT3001_SENSOR_H_ */
+#endif /* MQ6_SENSOR_H_ */

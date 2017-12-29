@@ -27,41 +27,24 @@ Networks, Inc.
 
 */
 
-#ifndef ALSOPT3001_SENSOR_H_
-#define ALSOPT3001_SENSOR_H_
+#ifndef WEIGHT_SENSOR_H_
+#define WEIGHT_SENSOR_H_
 
 #include <Arduino.h>
 #include "errors.h"
-#include <ClosedCube_OPT3001.h>
-
 
 typedef enum {
-    ALS_SHUTDOWN = 0x0,
-    ALS_SINGLESHOT = 0x1,
-    ALS_CONTINUOUS1 = 0x2,
-    ALS_CONTINUOUS2 = 0x3
-} als_sensor_conversionmode_t;
+    SCALE_KILOGRAMS = 0x0,
+    SCALE_LBS = 0x1
 
-typedef enum {
-    ALS_CONVTIME_100MS = 0x0,
-    ALS_CONVTIME_800MS = 0x1
-} als_sensor_conversiontime_t;
+} weight_scale_t;
 
-typedef struct als_sensor_cfg
+typedef struct weight_ctx
 {
-    int8_t  als_range_number;
-    als_sensor_conversiontime_t  als_conversion_time;
-    uint8_t  als_latch;
-    als_sensor_conversionmode_t  als_conversion_mode;
-
-} als_sensor_cfg_t;
-
-
-typedef struct als_ctx
-{
-    als_sensor_cfg_t   cfg;
-    uint8_t  enable;
-} als_ctx_t;
+    int   calibrating_factor;
+    weight_scale_t weight_scale;
+    uint8_t enable;
+} weight_ctx_t;
 
 
 /******************************************************************************/
@@ -70,124 +53,97 @@ typedef struct als_ctx
 
 
 /*
- * crals
+ * crweight
  *
- * @brief CoAP Resource als sensor
+ * @brief CoAP Resource weight sensor
  *
  */
-error_t crals( struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *it );
+error_t crweight( struct coap_msg_ctx *req, struct coap_msg_ctx *rsp, void *it );
 
 /*
- * arduino_disab_als
+ * arduino_disab_weight
  *
  * @brief
  *
  */
-error_t arduino_disab_als();
+error_t arduino_disab_weight();
 
 /*
- * arduino_enab_zld
+ * arduino_enab_weight
  *
  * @brief
  *
  */
-error_t arduino_enab_als();
+error_t arduino_enab_weight();
 
 /*
- * arduino_als_sensor_init
+ * arduino_weight_sensor_init
  *
 * @brief
  *
  */
-error_t arduino_als_sensor_init();
+error_t arduino_weight_sensor_init();
 
 /**
- * @brief Get sensor als
+ * @brief Get sensor weight
 
  * @param[in] m Pointer to input mbuf
  * @param[in] len Length of input
  * @return error_t
  */
-error_t arduino_get_als(struct mbuf *m, uint8_t *len);
+error_t arduino_get_weight(struct mbuf *m, uint8_t *len);
+
+
+/* @brief CoAP Get weight calibration factor
+ * @param[in] m Pointer to input mbuf
+ * @param[in] len Length of input
+ * @return error_t
+ */
+error_t arduino_get_weight_calib_factor(struct mbuf *m, uint8_t *len);
 
 /**
- * @brief CoAP PUT als config conversion time
+ * @brief CoAP put weight sensor scale unit configuration
  *
- * @param[in] conversion time
+ * @param[in] measurement scale (kg lbs)
  * @return error_t
  */
-error_t arduino_put_als_cfg_conversiontime( als_sensor_conversiontime_t convtime );
-
+error_t arduino_put_weight_cfg_scale(weight_scale_t weight_scale);
 
 /**
- * @brief CoAP GET als conversion time
-
+ * @brief CoAP GET weight conversion time
  * @param[in] m Pointer to input mbuf
  * @param[in] len Length of input
  * @return error_t
  */
-error_t arduino_get_als_cfg_conversiontime(struct mbuf *m, uint8_t *len);
+error_t arduino_get_weight_cfg_scale(struct mbuf *m, uint8_t *len);
 
 
-/**
- * @brief CoAP PUT als config conversion time
- *
- * @param[in] conversion time
- * @return error_t
- */
-error_t arduino_put_als_cfg_conversionmode( als_sensor_conversionmode_t convmode );
-
-
-/**
- * @brief CoAP GET als conversion time
-
- * @param[in] m Pointer to input mbuf
- * @param[in] len Length of input
- * @return error_t
- */
-error_t arduino_get_als_cfg_conversionmode(struct mbuf *m, uint8_t *len);
 
 
 
 /******************************************************************************/
 /*                     Private Methods                                        */
 /******************************************************************************/
-
-void configureSensor();
-
-void newconfigureSensor() ;
-
-void printResult(String text, OPT3001 result);
-
-void printError(String text, OPT3001_ErrorCode error);
-
 /*
- * als_sensor_read
+ * weight_sensor_read
  *
- * @param p: if error_t is ERR_OK, als reading will be returned.
+ * @param p: if error_t is ERR_OK, weight reading will be returned.
  *
  */
-error_t als_sensor_read(float * p);
-
-
-/*
- * @brief  Get thresholds for als sensor alerts
- * @return error_t
- */
-error_t als_sensor_cfg_set(const struct als_sensor_cfg *cfg);
+error_t weight_sensor_read(float * p);
 
 /*
  * @brief  Enable sensor
  * @return error_t
  */
-error_t als_sensor_enable(void);
+error_t weight_sensor_enable(void);
 
 /*
  * @brief  Disable sensor
  * @return error_t
  */
-error_t als_sensor_disable(void);
+error_t weight_sensor_disable(void);
 
 
 
-#endif /* ALSOPT3001_SENSOR_H_ */
+#endif /* WEIGHT_SENSOR_H_ */

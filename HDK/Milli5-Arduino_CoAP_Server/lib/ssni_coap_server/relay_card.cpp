@@ -27,9 +27,9 @@ Networks, Inc.
 
 
 The circuit configuration - Relaycard Keyes_SR1y
-  - minus pin: ground (Milli5 Arduino Shiled board - J15 pin6 )
-  - plus pin: 5V (Milli5 Arduino Shiled board - J15 pin5 )
-  - S pin: 10 (Milli5 Arduino Shiled board - J6 pin3 )
+  - Minus pin: ground (Milli5 Arduino Shield board - J15 pin6 )
+  - Plus pin: 5V (Milli5 Arduino Shield board - J15 pin5 )
+  - S pin: 10 (Milli5 Arduino Shield board - J6 pin3 )
 
 
 

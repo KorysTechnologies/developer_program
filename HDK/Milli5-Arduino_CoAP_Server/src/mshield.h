@@ -39,6 +39,8 @@ Networks, Inc.
 #include "alsopt3001_sensor.h"
 #include "bme280_sensor.h"
 #include "adxl335_sensor.h"
+#include "mq6_sensor.h"
+#include "weight_sensor.h"
 #include "log.h"
 #include "arduino_time.h"
 
@@ -59,6 +61,8 @@ Networks, Inc.
 #define ALS_SENSOR						"als"
 #define BME280_SENSOR					"bme280"
 #define ADXL335_SENSOR					"adxl335"
+#define MQ6_SENSOR						"mq6"
+#define WEIGHT_SENSOR					"weight"
 #define MY_SECOND_SENSOR       			"another_sensor"
 
 /******************************************************************************/
@@ -73,6 +77,8 @@ Networks, Inc.
 //#define OBS_SENSOR_NAME     			ALS_SENSOR
 //#define OBS_SENSOR_NAME     			BME280_SENSOR
 //#define OBS_SENSOR_NAME     			ADXL335_SENSOR
+//#define OBS_SENSOR_NAME     			MQ6_SENSOR
+//#define OBS_SENSOR_NAME     			WEIGHT_SENSOR
 
 // Specify the function that reads the sensor and assembles the 
 // CoAP Observe response message:
@@ -84,7 +90,8 @@ Networks, Inc.
 //#define OBS_FUNC_PTR        			&arduino_get_bme280_humidity
 //#define OBS_FUNC_PTR        			&arduino_get_adxl335_xaxis
 //#define OBS_FUNC_PTR        			&arduino_get_adxl335_yaxis
-//#define OBS_FUNC_PTR        			&arduino_get_adxl335_zaxis
+//#define OBS_FUNC_PTR        			&arduino_get_mq6
+//#define OBS_FUNC_PTR        			&arduino_get_weight
 
 /******************************************************************************/
 //
