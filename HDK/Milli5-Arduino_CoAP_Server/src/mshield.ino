@@ -130,6 +130,10 @@ error_t crarduino( struct coap_msg_ctx *req, struct coap_msg_ctx *rsp )
 void setup()
 {
 
+  //Set Arduino pin3 as OUTPUT HIGH (drive mNIC MILLI5_5_WAKEUP pin)
+  pinMode(3,OUTPUT);
+  digitalWrite(3,HIGH);
+
   // Set-up serial port for logging output
   // Print debug messages to the Serial Monitor
   // The pointer to the serial object is defined in mshield.h
